@@ -39,10 +39,10 @@ void HC595Pulse() {
 void HC595Latch() {
    //Pulse the Store Clock
 
-   HC595_PORT |= (1<<HC595_ST_CP_POS);//HIGH
+   HC595_PORT |= (1<<HC595_ST_CP_POS); //HIGH
    _delay_loop_1(1);
 
-   HC595_PORT& = (~(1<<HC595_ST_CP_POS));//LOW
+   HC595_PORT &= (~(1<<HC595_ST_CP_POS)); //LOW
    _delay_loop_1(1);
 }
 
