@@ -1,1 +1,1 @@
-# AVR - ATMega32 Examples
+# AVR - ATMega32u2 Examples
