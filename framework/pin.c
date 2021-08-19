@@ -123,21 +123,25 @@ void pin_set_state(uint8_t pin, uint8_t state) {
         // Set PWM
         switch(pin) {
             case 0:
-                TCCR0A |= ( 1<< WGM00 | 1 << COM0B1 );
-                TCCR0B |= ( 1<< CS00 );
-                OCR0A = state;
-            case 15:
-                TCCR0A |= ( 1<< WGM00 | 1 << COM0A1 );
-                TCCR0B |= ( 1<< CS00 );
+                TCCR0A |= ( 1 << WGM00 | 1 << COM0B1 );
+                TCCR0B |= ( 1 << CS00 );
                 OCR0B = state;
+								break;
+            case 15:
+                TCCR0A |= ( 1 << WGM00 | 1 << COM0A1 );
+                TCCR0B |= ( 1 << CS01 );
+                OCR0A = state;
+								break;
             case 19:
-                TCCR1A |= (1 << WGM10 | 1 << COM1B1 );
-                TCCR1B |= (1 << CS10);
+                TCCR1A |= ( 1 << WGM10 | 1 << COM1B1 );
+                TCCR1B |= ( 1 << CS10);
                 OCR1B = state;
+								break;
             case 20:
-                TCCR1A |= (1 << WGM10 | 1 << COM1A1 );
-                TCCR1B |= (1 << CS10);
+                TCCR1A |= ( 1 << WGM10 | 1 << COM1A1 );
+                TCCR1B |= ( 1 << CS11);
                 OCR1A = state;
+								break;
         }
     }
 }
