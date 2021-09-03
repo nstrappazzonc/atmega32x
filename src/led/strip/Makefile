@@ -13,12 +13,9 @@ clean: ## Remove compiled files.
 	rm -f main.o wait.o pin.o main.hex main
 
 build: ## Compile source code.
-# 	avr-gcc ${CFLAGS} -o wait.o ../../../framework/wait.c
-	avr-gcc ${CFLAGS} -o pin.o ../../framework/pin.c
-	avr-gcc ${CFLAGS} -o led_strip.o ../../framework/led_strip.c
-# 	avr-gcc ${CFLAGS} -o ws2812.o ws2812.c
-	avr-gcc ${CFLAGS} -I ../../framework/ -o main.o main.c
-# 	avr-gcc -mmcu=${MCU} wait.o pin.o main.o -o main
+	avr-gcc ${CFLAGS} -o pin.o ../../../framework/pin.c
+	avr-gcc ${CFLAGS} -o led_strip.o ../../../framework/led_strip.c
+	avr-gcc ${CFLAGS} -I ../../../framework/ -o main.o main.c
 	avr-gcc -mmcu=${MCU} pin.o led_strip.o main.o -o main
 	avr-objcopy -O ihex -R .eeprom main main.hex
 

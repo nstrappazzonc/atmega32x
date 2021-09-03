@@ -19,13 +19,10 @@
 
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include "pin.h"
 #include "led_strip.h"
 
-void __attribute__((noinline)) led_strip(uint8_t pin, RGBColor *colors) {
+void __attribute__((noinline)) led_strip(RGBColor *colors) {
   uint16_t count = sizeof(RGBColor) + 1;
-
-  pin_setup(pin, OUTPUT, LOW);
 
   cli();
   while (count--) {
@@ -73,7 +70,7 @@ void __attribute__((noinline)) led_strip(uint8_t pin, RGBColor *colors) {
         // %a0 points to the next color to display
         : "0" (colors),
           // %2 is the port register (e.g. _SFR_IO_ADDR(PORTD) )
-          "I" (_SFR_IO_ADDR(PORTx_ADDRESS(RGBLIGHT_DI_PIN))),
+          "I" (_SFR_IO_ADDR(RGBLIGHT_DI_PORT)),
           // %3 is the pin number (0-8) // PD1
           "I" (RGBLIGHT_DI_PIN)
     );
