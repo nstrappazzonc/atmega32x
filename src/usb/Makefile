@@ -13,10 +13,13 @@ clean: ## Remove compiled files.
 	rm -f main.o wait.o pin.o main.hex main
 
 build: ## Compile source code.
-	avr-gcc ${CFLAGS} -o wait.o ../../../framework/wait.c
-	avr-gcc ${CFLAGS} -o pin.o ../../../framework/pin.c
-	avr-gcc ${CFLAGS} -I ../../../framework/ -o main.o main.c
-	avr-gcc -mmcu=${MCU} wait.o pin.o main.o -o main
+# 	avr-gcc ${CFLAGS} -o wait.o ../../../framework/wait.c
+# 	avr-gcc ${CFLAGS} -o pin.o ../../framework/pin.c
+	avr-gcc ${CFLAGS} -o usb.o usb.c
+# 	avr-gcc ${CFLAGS} -o ws2812.o ws2812.c
+	avr-gcc ${CFLAGS} -I ../../framework/ -o main.o main.c
+# 	avr-gcc -mmcu=${MCU} wait.o pin.o main.o -o main
+	avr-gcc -mmcu=${MCU} usb.o main.o -o main
 	avr-objcopy -O ihex -R .eeprom main main.hex
 
 upload: ## Write firmware to microcontroller.
@@ -26,7 +29,7 @@ download: ## Backup firmware from microcontroller.
 	avrdude -V -c usbtiny -p ${MCU} -U flash:r:backup.hex:i
 
 fuse: ## Write fuse to microcontroller.
-	avrdude -c usbtiny -p ${MCU} -u -U lfuse:w:0xEF:m -U hfuse:w:0xD5:m
+	avrdude -c usbtiny -p ${MCU} -u -U lfuse:w:0xEF:m -U hfuse:w:0xD4:m -U efuse:w:0xF4:m
 
 erase: ## Erase all on microcontroller.
 	avrdude -c usbtiny -p ${MCU} -e -F

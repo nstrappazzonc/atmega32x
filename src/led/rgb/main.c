@@ -11,10 +11,10 @@ int main(void) {
     pin_setup(20, OUTPUT, LOW); // PC6
 
     while(1) {
-        pin_set_state(0, brightness);
-        pin_set_state(15, brightness);
+        //pin_set_state(0,  200);
+        //pin_set_state(15, brightness);
         pin_set_state(19, brightness);
-        pin_set_state(20, brightness);
+        //pin_set_state(20, brightness);
 
         if(fadein)
             brightness += 5;
