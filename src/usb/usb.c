@@ -14,14 +14,11 @@ USB Controller initialization, device setup, and HID interrupt routines
 volatile uint8_t keyboard_pressed_keys[6] = {0, 0, 0, 0, 0, 0};
 volatile uint8_t keyboard_modifier = 0;
 
-static uint16_t keyboard_idle_value =
-    125;  // HID Idle setting, how often the device resends unchanging reports,
-          // we are using a scaling of 4 because of the register size
-static uint8_t current_idle =
-    0;  // Counter that updates based on how many SOFE interrupts have occurred
-static uint8_t this_interrupt =
-    0;  // This is not the best way to do it, but it
-        // is much more readable than the alternative
+static uint16_t keyboard_idle_value = 125;  // HID Idle setting, how often the device resends unchanging reports,
+                                            // we are using a scaling of 4 because of the register size
+static uint8_t current_idle = 0;    // Counter that updates based on how many SOFE interrupts have occurred
+static uint8_t this_interrupt = 0;  // This is not the best way to do it, but it
+                                    // is much more readable than the alternative
 
 /*  Device Descriptor - The top level descriptor when enumerating a USB device`
         Specification: USB 2.0 (April 27, 2000) Chapter 9 Table 9-5

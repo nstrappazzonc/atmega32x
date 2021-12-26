@@ -12,8 +12,7 @@ upload: ## Write firmware to microcontroller.
 	avrdude -F -V -c usbtiny -p ${MCU} -U flash:w:atmel_atmega32u2.hex
 
 fuse: ## Write fuse to microcontroller.
-	avrdude -c usbtiny -p ${MCU} -u -F -U lfuse:w:0x5E:m -U hfuse:w:0xD9:m -U efuse:w:0xC3:m
-# avrdude -c usbtiny -p ${MCU} -u -F -U lfuse:w:0xff:m -U hfuse:w:0xd8:m -U efuse:w:0xcb:m
+	avrdude -c usbtiny -p ${MCU} -u -F -U lfuse:w:0x5E:m -U hfuse:w:0xD9:m -U efuse:w:0xF4:m
 
 lock: ## Write fuse bit lock to microcontroller.
 	avrdude -c usbtiny -p ${MCU} -u -F -U lock:w:0x2c:m

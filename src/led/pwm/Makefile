@@ -20,7 +20,7 @@ build: ## Compile source code.
 	avr-objcopy -O ihex -R .eeprom main main.hex
 
 upload: ## Write firmware to microcontroller.
-	avrdude -F -V -c usbtiny -p ${MCU} -U flash:w:main.hex
+ 	avrdude -F -V -c usbtiny -p ${MCU} -U flash:w:main.hex
 
 download: ## Backup firmware from microcontroller.
 	avrdude -V -c usbtiny -p ${MCU} -U flash:r:backup.hex:i
