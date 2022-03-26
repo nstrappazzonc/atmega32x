@@ -26,7 +26,10 @@ download: ## Backup firmware from microcontroller.
 	avrdude -V -c usbtiny -p ${MCU} -U flash:r:backup.hex:i
 
 fuse: ## Write fuse to microcontroller.
-	avrdude -c usbtiny -p ${MCU} -u -U lfuse:w:0xff:m -U hfuse:w:0xd8:m -U efuse:w:0xcb:m
+# 	avrdude -c usbtiny -p ${MCU} -u -F -U lfuse:w:0xff:m -U hfuse:w:0xd8:m -U efuse:w:0xF3:m
+	avrdude -c usbtiny -p ${MCU} -u -F -U lfuse:w:0xff:m -U hfuse:w:0xd9:m -U efuse:w:0xf4:m
+# 	avrdude -c usbtiny -p ${MCU} -u -F -U lfuse:w:0x5E:m -U hfuse:w:0xD9:m -U efuse:w:0xF4:m
+# 	avrdude -c usbtiny -p ${MCU} -u -F -U lfuse:w:0x1E:m -U hfuse:w:0x95:m -U efuse:w:0x8A:m
 
 get-fuse: ## Write fuse to microcontroller.
 	avrdude -c usbtiny -p ${MCU} -u -U lfuse:r:-:i -U hfuse:r:-:i -U efuse:r:-:i

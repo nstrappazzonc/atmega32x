@@ -10,8 +10,8 @@ help: ## Show this help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "${YELLOW}%-16s${GREEN}%s${RESET}\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 clean: ## Remove compiled files.
-	rm main.o
-	rm main.hex
+	rm *.o
+	rm *.hex
 	rm main
 
 check: ## Verify communication to microcontroller.
@@ -19,7 +19,8 @@ check: ## Verify communication to microcontroller.
 
 build: ## Compile source code.
 	avr-gcc ${CFLAGS} -c -o main.o main.c
-	avr-gcc -mmcu=${MCU} main.o -o main
+	avr-gcc ${CFLAGS} -c -o usb.o usb.c
+	avr-gcc -mmcu=${MCU} usb.o main.o -o main
 	avr-objcopy -O ihex -R .eeprom main main.hex
 
 upload: ## Write firmware to microcontroller.

@@ -9,8 +9,7 @@
 // inline assembly.
 
 // This line specifies the frequency your AVR is running at.
-// This code supports 20 MHz, 16 MHz and 8MHz
-// #define F_CPU 20000000
+// This code supports 16 MHz
 
 // These lines specify what pin the LED strip is on.
 // You will either need to attach the LED strip's data line to PH3
@@ -63,7 +62,6 @@ void __attribute__((noinline)) led_strip(RGBColor *colors) {
         "brcs .+2\n" "cbi %2, %3\n"              // If the bit to send is 0, drive the line low now.
         "nop\n" "nop\n" "nop\n" "nop\n" "nop\n"
         "brcc .+2\n" "cbi %2, %3\n"              // If the bit to send is 1, drive the line low now.
-
         "ret\n"
         "led_strip_asm_end%=: "
         : "=b" (colors)
@@ -75,6 +73,8 @@ void __attribute__((noinline)) led_strip(RGBColor *colors) {
           "I" (RGBLIGHT_DI_PIN)
     );
   }
+  // Re-enable interrupts now that we are done.
+  sei();
   // Send the reset signal.
   _delay_us(80);
 }
