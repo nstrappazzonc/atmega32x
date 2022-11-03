@@ -1,0 +1,47 @@
+.PHONY: help
+
+GREEN := $(shell tput -Txterm setaf 2)
+YELLOW := $(shell tput -Txterm setaf 3)
+RESET := $(shell tput -Txterm sgr0)
+MCU=atmega32u4
+CLK=16000000
+
+CFLAGS=-Os -DF_CPU=${CLK}UL -mmcu=${MCU} -Wall -c
+
+help: ## Show this help.
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "${YELLOW}%-16s${GREEN}%s${RESET}\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+clean: ## Remove compiled files.
+	rm -f *.o *.hex main
+
+build: ## Compile source code.
+	avr-gcc ${CFLAGS} -c ${LIB}framework/*.c
+	avr-gcc ${CFLAGS} -I ${LIB}framework/ -o main.o main.c
+	avr-gcc -mmcu=${MCU} *.o -o main
+	avr-objcopy -O ihex -R .eeprom main main.hex
+
+flash-isp: ## Write firmware to microcontroller using ISP.
+	avrdude -F -V -c usbtiny -p ${MCU} -U flash:w:main.hex
+
+flash-dfu: ## Write firmware to microcontroller using DFU.
+	dfu-programmer atmega32u2 erase
+	dfu-programmer atmega32u2 flash main.hex
+	dfu-programmer atmega32u2 launch --no-reset
+
+launch: ## Run program using DFU.
+	dfu-programmer atmega32u2 launch --no-reset
+
+download: ## Backup firmware from microcontroller using ISP.
+	avrdude -V -c usbtiny -p ${MCU} -U flash:r:backup.hex:i
+
+fuse: ## Write fuse to microcontroller using ISP.
+	avrdude -c usbtiny -p ${MCU} -u -F -U lfuse:w:0xff:m -U hfuse:w:0xd9:m -U efuse:w:0xf4:m
+
+get-fuse: ## Write fuse to microcontroller using ISP.
+	avrdude -c usbtiny -p ${MCU} -u -U lfuse:r:-:i -U hfuse:r:-:i -U efuse:r:-:i
+
+erase: ## Erase all on microcontroller using ISP.
+	avrdude -c usbtiny -p ${MCU} -e -F
+
+tty: ## Enter into TTY terminal.
+	tio -b 57600 /dev/tty.usbmodem14401

@@ -1,5 +1,4 @@
 #include <util/delay.h>
-
 #include "wait.h"
 
 void wait(unsigned long ms) {

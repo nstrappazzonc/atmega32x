@@ -7,5 +7,3 @@ LOCK = 0xEC
 Further programming and verification disabled
 No lock on SPM and LPM in Application Section
 SPM prohibited in Boot Section
-
-
