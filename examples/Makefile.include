@@ -3,7 +3,7 @@
 GREEN := $(shell tput -Txterm setaf 2)
 YELLOW := $(shell tput -Txterm setaf 3)
 RESET := $(shell tput -Txterm sgr0)
-MCU=atmega32u4
+MCU=atmega32u2
 CLK=16000000
 
 CFLAGS=-Os -DF_CPU=${CLK}UL -mmcu=${MCU} -Wall -c
@@ -24,12 +24,12 @@ flash-isp: ## Write firmware to microcontroller using ISP.
 	avrdude -F -V -c usbtiny -p ${MCU} -U flash:w:main.hex
 
 flash-dfu: ## Write firmware to microcontroller using DFU.
-	dfu-programmer atmega32u2 erase
-	dfu-programmer atmega32u2 flash main.hex
-	dfu-programmer atmega32u2 launch --no-reset
+	dfu-programmer ${MCU} erase
+	dfu-programmer ${MCU} flash main.hex
+	dfu-programmer ${MCU} launch --no-reset
 
 launch: ## Run program using DFU.
-	dfu-programmer atmega32u2 launch --no-reset
+	dfu-programmer ${MCU} launch --no-reset
 
 download: ## Backup firmware from microcontroller using ISP.
 	avrdude -V -c usbtiny -p ${MCU} -U flash:r:backup.hex:i
