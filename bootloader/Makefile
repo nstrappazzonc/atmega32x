@@ -8,11 +8,8 @@ MCU=atmega32u2
 help: ## Show this help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "${YELLOW}%-16s${GREEN}%s${RESET}\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-flash-atmel: ## Write Atmel DFU firmware to microcontroller.
+flash: ## Write Atmel DFU firmware to microcontroller.
 	avrdude -F -V -c usbtiny -p ${MCU} -U flash:w:atmel_atmega32u2.hex
-
-flash-arduino: ## Write Arduino Serial firmware to microcontroller.
-	avrdude -F -V -c usbtiny -p ${MCU} -U flash:w:arduino-usbserial-uno.hex
 
 fuse: ## Write fuse to microcontroller.
 	avrdude -c usbtiny -p ${MCU} -u -F -U lfuse:w:0x5E:m -U hfuse:w:0xD9:m -U efuse:w:0xF4:m
