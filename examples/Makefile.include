@@ -24,7 +24,7 @@ flash-isp: ## Write firmware to microcontroller using ISP.
 	avrdude -F -V -c usbtiny -p ${MCU} -U flash:w:main.hex
 
 flash-dfu: ## Write firmware to microcontroller using DFU.
-	dfu-programmer ${MCU} erase
+	dfu-programmer ${MCU} erase --force
 	dfu-programmer ${MCU} flash main.hex
 	dfu-programmer ${MCU} launch --no-reset
 

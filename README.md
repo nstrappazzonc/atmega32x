@@ -17,3 +17,12 @@ brew tap osx-cross/avr
 brew install avr-gcc
 brew install dfu-programmer
 ```
+
+## Todo
+
+- Leer analogico: https://github.com/Andrew-H3/AVR-ADC
+- Escribir analogico
+- Waves
+- I2C - LCS
+- I2C - RTC
+- Hacer un schematic para todos los ejemplos.
