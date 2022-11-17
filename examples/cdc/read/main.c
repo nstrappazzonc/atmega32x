@@ -1,3 +1,29 @@
+#include <stdint.h>
+#include <wait.h>
+#include <cdc.h>
+
+int main(void) {
+    cdc_init();
+
+    while (1) {
+        // Write string into terminal.
+        cdc_write_string(PSTR("\r\nType PB7 to turn on/off."));
+
+        // and then listen for commands and process them
+        while (1) {
+            cdc_write_string(PSTR("> "));
+            n = recv_str(buf, sizeof(buf));
+            if (n == 255) break;
+            cdc_write_string(PSTR("\r\n"));
+            // parse_and_execute_command(buf, n);
+        }
+
+        // wait(1000);
+    }
+}
+
+
+
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <stdint.h>
@@ -31,7 +57,8 @@ int main(void) {
     while (1) {
         // wait for the user to run their terminal emulator program
         // which sets DTR to indicate it is ready to receive.
-        while (!(cdc_get_control() & CDC_DTR)) /* wait */ ;
+        // while (!(cdc_get_control() & CDC_DTR)) /* wait */ ;
+        cdc_ready_to_receive();
 
         // discard anything that was received prior.  Sometimes the
         // operating system or other software will send a modem

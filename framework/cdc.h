@@ -3,15 +3,16 @@
 
 #include <stdint.h>
 #include <avr/pgmspace.h>
+#include <util/delay.h>
 
 // Setup
-void cdc_init(void);          // initialize everything
-uint8_t cdc_configured(void); // is the USB port configured
+void cdc_init(void);          // Initialize everything
+uint8_t cdc_configured(void); // Is the USB port configured
 
 // Receiving data
-int16_t cdc_getchar(void);       // receive a character (-1 if timeout/error)
-uint8_t cdc_available(void);     // number of bytes in receive buffer
-void cdc_flush_input(void);      // discard any buffered input
+int16_t cdc_getchar(void);       // Receive a character (-1 if timeout/error)
+uint8_t cdc_available(void);     // Number of bytes in receive buffer
+void cdc_flush_input(void);      // Discard any buffered input
 void cdc_ready_to_receive(void); // Ready to receive data from terminal.
 
 // Transmitting data
@@ -22,13 +23,13 @@ void cdc_flush_output(void);                            // Immediately transmit 
 void cdc_write_string(const char *data);                // Write string into buffer
 
 // Serial parameters
-uint8_t cdc_get_stopbits(void);          // get the number of stop bits
-uint8_t cdc_get_paritytype(void);        // get the parity type
-uint8_t cdc_get_numbits(void);           // get the number of data bits
-uint8_t cdc_get_control(void);           // get the RTS and DTR signal state
-int8_t cdc_set_control(uint8_t signals); // set DSR, DCD, RI, etc
+uint8_t cdc_get_stopbits(void);          // Get the number of stop bits
+uint8_t cdc_get_paritytype(void);        // Get the parity type
+uint8_t cdc_get_numbits(void);           // Get the number of data bits
+uint8_t cdc_get_control(void);           // Get the RTS and DTR signal state
+int8_t cdc_set_control(uint8_t signals); // Set DSR, DCD, RI, etc
 
-// constants corresponding to the various serial parameters
+// Constants corresponding to the various serial parameters
 #define CDC_DTR          0x01
 #define CDC_RTS          0x02
 #define CDC_1_STOP       0
@@ -67,7 +68,7 @@ int8_t cdc_set_control(uint8_t signals); // set DSR, DCD, RI, etc
                    ((s) == 16 ? 0x10 : \
                     0x00)))
 
-#define MAX_ENDPOINT        4
+#define MAX_ENDPOINT 4
 
 #define LSB(n) (n & 255)
 #define MSB(n) ((n >> 8) & 255)

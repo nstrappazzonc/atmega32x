@@ -154,78 +154,78 @@ const static uint8_t PROGMEM device_descriptor[] = {
 #define CONFIG1_DESC_SIZE (9+9+5+5+4+5+7+9+7+7)
 const static uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
     // Configuration descriptor, USB spec 9.6.3, page 264-266, Table 9-10
-    9,                      // bLength;
-    2,                      // bDescriptorType;
-    LSB(CONFIG1_DESC_SIZE), // wTotalLength
+    9,                       // bLength;
+    2,                       // bDescriptorType;
+    LSB(CONFIG1_DESC_SIZE),  // wTotalLength
     MSB(CONFIG1_DESC_SIZE),
-    2,                      // bNumInterfaces
-    1,                      // bConfigurationValue
-    0,                      // iConfiguration
-    0xC0,                   //   bmAttributes
-    50,                     // bMaxPower
+    2,                       // bNumInterfaces
+    1,                       // bConfigurationValue
+    0,                       // iConfiguration
+    0xC0,                    //   bmAttributes
+    50,                      // bMaxPower
     // Interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
-    9,                      // bLength
-    4,                      // bDescriptorType
-    0,                      // bInterfaceNumber
-    0,                      // bAlternateSetting
-    1,                      // bNumEndpoints
-    0x02,                   //   bInterfaceClass
-    0x02,                   //   bInterfaceSubClass
-    0x01,                   //   bInterfaceProtocol
-    0,                      // iInterface
+    9,                       // bLength
+    4,                       // bDescriptorType
+    0,                       // bInterfaceNumber
+    0,                       // bAlternateSetting
+    1,                       // bNumEndpoints
+    0x02,                    //   bInterfaceClass
+    0x02,                    //   bInterfaceSubClass
+    0x01,                    //   bInterfaceProtocol
+    0,                       // iInterface
     // CDC Header Functional Descriptor, CDC Spec 5.2.3.1, Table 26
-    5,                      // bFunctionLength
-    0x24,                   //   bDescriptorType
-    0x00,                   //   bDescriptorSubtype
-    0x10, 0x01,             //   bcdCDC
+    5,                       // bFunctionLength
+    0x24,                    //   bDescriptorType
+    0x00,                    //   bDescriptorSubtype
+    0x10, 0x01,              //   bcdCDC
     // Call Management Functional Descriptor, CDC Spec 5.2.3.2, Table 27
-    5,                      // bFunctionLength
-    0x24,                   //   bDescriptorType
-    0x01,                   //   bDescriptorSubtype
-    0x01,                   //   bmCapabilities
-    1,                      // bDataInterface
+    5,                       // bFunctionLength
+    0x24,                    //   bDescriptorType
+    0x01,                    //   bDescriptorSubtype
+    0x01,                    //   bmCapabilities
+    1,                       // bDataInterface
     // Abstract Control Management Functional Descriptor, CDC Spec 5.2.3.3, Table 28
-    4,                      // bFunctionLength
-    0x24,                   //   bDescriptorType
-    0x02,                   //   bDescriptorSubtype
-    0x06,                   //   bmCapabilities
+    4,                       // bFunctionLength
+    0x24,                    //   bDescriptorType
+    0x02,                    //   bDescriptorSubtype
+    0x06,                    //   bmCapabilities
     // Union Functional Descriptor, CDC Spec 5.2.3.8, Table 33
-    5,                  // bFunctionLength
-    0x24,                   // bDescriptorType
-    0x06,                   // bDescriptorSubtype
-    0,                  // bMasterInterface
-    1,                  // bSlaveInterface0
+    5,                       // bFunctionLength
+    0x24,                    //   bDescriptorType
+    0x06,                    //   bDescriptorSubtype
+    0,                       // bMasterInterface
+    1,                       // bSlaveInterface0
     // Endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
-    7,                  // bLength
-    5,                  // bDescriptorType
-    CDC_ACM_ENDPOINT | 0x80,        // bEndpointAddress
-    0x03,                   // bmAttributes (0x03=intr)
-    CDC_ACM_SIZE, 0,            // wMaxPacketSize
-    64,                 // bInterval
+    7,                       // bLength
+    5,                       // bDescriptorType
+    CDC_ACM_ENDPOINT | 0x80, // bEndpointAddress
+    0x03,                    // bmAttributes (0x03=intr)
+    CDC_ACM_SIZE, 0,         // wMaxPacketSize
+    64,                      // bInterval
     // Interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
-    9,                  // bLength
-    4,                  // bDescriptorType
-    1,                  // bInterfaceNumber
-    0,                  // bAlternateSetting
-    2,                  // bNumEndpoints
-    0x0A,                   // bInterfaceClass
-    0x00,                   // bInterfaceSubClass
-    0x00,                   // bInterfaceProtocol
-    0,                  // iInterface
+    9,                       // bLength
+    4,                       // bDescriptorType
+    1,                       // bInterfaceNumber
+    0,                       // bAlternateSetting
+    2,                       // bNumEndpoints
+    0x0A,                    //   bInterfaceClass
+    0x00,                    //   bInterfaceSubClass
+    0x00,                    //   bInterfaceProtocol
+    0,                       // iInterface
     // Endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
-    7,                  // bLength
-    5,                  // bDescriptorType
-    CDC_RX_ENDPOINT,            // bEndpointAddress
-    0x02,                   // bmAttributes (0x02=bulk)
-    CDC_RX_SIZE, 0,             // wMaxPacketSize
-    0,                  // bInterval
+    7,                       // bLength
+    5,                       // bDescriptorType
+    CDC_RX_ENDPOINT,         //   bEndpointAddress
+    0x02,                    // bmAttributes (0x02=bulk)
+    CDC_RX_SIZE, 0,          //   wMaxPacketSize
+    0,                       // bInterval
     // Endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
-    7,                  // bLength
-    5,                  // bDescriptorType
-    CDC_TX_ENDPOINT | 0x80,         // bEndpointAddress
-    0x02,                   // bmAttributes (0x02=bulk)
-    CDC_TX_SIZE, 0,             // wMaxPacketSize
-    0                   // bInterval
+    7,                       // bLength
+    5,                       // bDescriptorType
+    CDC_TX_ENDPOINT | 0x80,  // bEndpointAddress
+    0x02,                    // bmAttributes (0x02=bulk)
+    CDC_TX_SIZE, 0,          //   wMaxPacketSize
+    0                        // bInterval
 };
 
 // If you're desperate for a little extra code memory, these strings
@@ -293,7 +293,6 @@ static uint8_t transmit_previous_timeout=0;
 static uint8_t cdc_line_coding[7]={0x00, 0xE1, 0x00, 0x00, 0x00, 0x00, 0x08};
 static uint8_t cdc_line_rtsdtr=0;
 
-
 /**************************************************************************
  *
  *  Public Functions - these are the API intended for the user
@@ -313,6 +312,9 @@ void cdc_init(void)
     cdc_line_rtsdtr = 0;
     UDIEN = (1<<EORSTE)|(1<<SOFE);
     sei();
+
+    while (!cdc_configured()) /* wait */ ;
+    _delay_ms(1000);
 }
 
 // Return 0 if the USB is not configured, or the configuration
@@ -375,7 +377,7 @@ uint8_t cdc_available(void)
     return n;
 }
 
-// discard any buffered input
+// Discard any buffered input
 void cdc_flush_input(void)
 {
     uint8_t intr_state;
@@ -391,7 +393,7 @@ void cdc_flush_input(void)
     }
 }
 
-// transmit a character.  0 returned on success, -1 on error
+// Transmit a character.  0 returned on success, -1 on error
 int8_t cdc_putchar(uint8_t c)
 {
     uint8_t timeout, intr_state;
@@ -440,9 +442,8 @@ int8_t cdc_putchar(uint8_t c)
     return 0;
 }
 
-
-// transmit a character, but do not wait if the buffer is full,
-//   0 returned on success, -1 on buffer full or error 
+// Transmit a character, but do not wait if the buffer is full,
+// 0 returned on success, -1 on buffer full or error 
 int8_t cdc_putchar_nowait(uint8_t c)
 {
     uint8_t intr_state;
@@ -465,7 +466,7 @@ int8_t cdc_putchar_nowait(uint8_t c)
     return 0;
 }
 
-// transmit a buffer.
+// Transmit a buffer.
 //  0 returned on success, -1 on error
 // This function is optimized for speed!  Each call takes approx 6.1 us overhead
 // plus 0.25 us per byte.  12 Mbit/sec USB has 8.67 us per-packet overhead and
@@ -476,7 +477,6 @@ int8_t cdc_putchar_nowait(uint8_t c)
 // can also be limited by how quickly the PC-based software reads data, as the host
 // controller in the PC will not allocate bandwitdh without a pending read request.
 // (thanks to Victor Suarez for testing and feedback and initial code)
-
 int8_t cdc_write(const uint8_t *buffer, uint16_t size)
 {
     uint8_t timeout, intr_state, write_size;
@@ -607,8 +607,7 @@ int8_t cdc_write(const uint8_t *buffer, uint16_t size)
     return 0;
 }
 
-
-// immediately transmit any buffered output.
+// Immediately transmit any buffered output.
 // This doesn't actually transmit the data - that is impossible!
 // USB devices only transmit when the host allows, so the best
 // we can do is release the FIFO buffer for when the host wants it
@@ -626,7 +625,7 @@ void cdc_flush_output(void)
     SREG = intr_state;
 }
 
-// functions to read the various async serial settings.  These
+// Functions to read the various async serial settings.  These
 // aren't actually used by USB at all (communication is always
 // at full USB speed), but they are set by the host so we can
 // set them properly if we're converting the USB to a real serial
@@ -647,7 +646,8 @@ uint8_t cdc_get_control(void)
 {
     return cdc_line_rtsdtr;
 }
-// write the control signals, DCD, DSR, RI, etc
+
+// Write the control signals, DCD, DSR, RI, etc
 // There is no CTS signal.  If software on the host has transmitted
 // data to you but you haven't been calling the getchar function,
 // it remains buffered (either here or on the host) and can not be
@@ -687,14 +687,11 @@ int8_t cdc_set_control(uint8_t signals)
     return 0;
 }
 
-
-
 /**************************************************************************
  *
  *  Private Functions - not intended for general user consumption....
  *
  **************************************************************************/
-
 
 // USB Device Interrupt - handle all device-level events
 // the transmit buffer flushing is triggered by the start of frame

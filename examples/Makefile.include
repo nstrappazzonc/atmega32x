@@ -37,11 +37,11 @@ download: ## Backup firmware from microcontroller using ISP.
 fuse: ## Write fuse to microcontroller using ISP.
 	avrdude -c usbtiny -p ${MCU} -u -F -U lfuse:w:0xff:m -U hfuse:w:0xd9:m -U efuse:w:0xf4:m
 
-get-fuse: ## Write fuse to microcontroller using ISP.
+get-fuse: ## Read fuse from microcontroller using ISP.
 	avrdude -c usbtiny -p ${MCU} -u -U lfuse:r:-:i -U hfuse:r:-:i -U efuse:r:-:i
 
 erase: ## Erase all on microcontroller using ISP.
 	avrdude -c usbtiny -p ${MCU} -e -F
 
-tty: ## Enter into TTY terminal.
+tty: ## Enter into TTY terminal, for CDC.
 	tio -b 38400 /dev/ttyACM0

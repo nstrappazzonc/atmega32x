@@ -2,6 +2,12 @@
 
 All examples inside in this repository are configure to use 16 MHz.
 
+Examples:
+
+- LED: Normal blink, Fade (PWM) and RGB.
+- Push buttom.
+- USB communications device class (or USB CDC class) is a Serial communication.
+
 ## Requirements
 
 To program AVRs, you will need the free avr-gcc compiler, avr-libc, AVRDUDE, and other associated tools.
