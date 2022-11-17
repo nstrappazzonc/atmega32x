@@ -1,5 +1,5 @@
 #include <avr/io.h>
-#include <util/delay.h>         
+#include <util/delay.h>
 
 int main(void) {
     DDRB |=   1 << 5;  // Configuring PB5 as Output
