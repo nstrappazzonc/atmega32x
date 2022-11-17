@@ -1,2 +1,0 @@
-LIB=../../
-include ../Makefile.include

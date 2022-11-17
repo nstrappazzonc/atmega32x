@@ -2,23 +2,26 @@
 #define cdc_h__
 
 #include <stdint.h>
+#include <avr/pgmspace.h>
 
-// setup
+// Setup
 void cdc_init(void);          // initialize everything
 uint8_t cdc_configured(void); // is the USB port configured
 
-// receiving data
-int16_t cdc_getchar(void);   // receive a character (-1 if timeout/error)
-uint8_t cdc_available(void); // number of bytes in receive buffer
-void cdc_flush_input(void);  // discard any buffered input
+// Receiving data
+int16_t cdc_getchar(void);       // receive a character (-1 if timeout/error)
+uint8_t cdc_available(void);     // number of bytes in receive buffer
+void cdc_flush_input(void);      // discard any buffered input
+void cdc_ready_to_receive(void); // Ready to receive data from terminal.
 
-// transmitting data
-int8_t cdc_putchar(uint8_t c);                          // transmit a character
-int8_t cdc_putchar_nowait(uint8_t c);                   // transmit a character, do not wait
-int8_t cdc_write(const uint8_t *buffer, uint16_t size); // transmit a buffer
-void cdc_flush_output(void);                            // immediately transmit any buffered output
+// Transmitting data
+int8_t cdc_putchar(uint8_t c);                          // Transmit a character
+int8_t cdc_putchar_nowait(uint8_t c);                   // Transmit a character, do not wait
+int8_t cdc_write(const uint8_t *buffer, uint16_t size); // Transmit a buffer
+void cdc_flush_output(void);                            // Immediately transmit any buffered output
+void cdc_write_string(const char *data);                // Write string into buffer
 
-// serial parameters
+// Serial parameters
 uint8_t cdc_get_stopbits(void);          // get the number of stop bits
 uint8_t cdc_get_paritytype(void);        // get the parity type
 uint8_t cdc_get_numbits(void);           // get the number of data bits
@@ -59,10 +62,10 @@ int8_t cdc_set_control(uint8_t signals); // set DSR, DCD, RI, etc
 #define EP_TYPE_ISOCHRONOUS_OUT 0x40
 #define EP_SINGLE_BUFFER        0x02
 #define EP_DOUBLE_BUFFER        0x06
-#define EP_SIZE(s)  ((s) == 64 ? 0x30 : \
-                    ((s) == 32 ? 0x20 : \
-                    ((s) == 16 ? 0x10 : \
-                     0x00)))
+#define EP_SIZE(s) ((s) == 64 ? 0x30 : \
+                   ((s) == 32 ? 0x20 : \
+                   ((s) == 16 ? 0x10 : \
+                    0x00)))
 
 #define MAX_ENDPOINT        4
 
@@ -73,7 +76,7 @@ int8_t cdc_set_control(uint8_t signals); // set DSR, DCD, RI, etc
 #define CDC_CONFIG() (USBCON = (1<<USBE))
 #define CDC_FREEZE() (USBCON = ((1<<USBE)|(1<<FRZCLK)))
 
-// standard control endpoint request types
+// Standard control endpoint request types
 #define GET_STATUS                  0
 #define CLEAR_FEATURE               1
 #define SET_FEATURE                 3
