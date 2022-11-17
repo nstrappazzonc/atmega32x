@@ -30,7 +30,7 @@
 // Version 1.6: fix zero length packet bug
 // Version 1.7: fix usb_serial_set_control
 
-#define USB_SERIAL_PRIVATE_INCLUDE
+#define SERIAL_PRIVATE_INCLUDE
 #include "serial.h"
 
 
@@ -42,8 +42,8 @@
 
 // You can change these to give your code its own name.  On Windows,
 // these are only used before an INF file (driver install) is loaded.
-#define STR_MANUFACTURER    L"atmega32u2"
-#define STR_PRODUCT     L"USB serial"
+#define STR_MANUFACTURER L"atmega32u2"
+#define STR_PRODUCT      L"USB serial"
 
 // All USB serial devices are supposed to have a serial number
 // (according to Microsoft).  On windows, a new COM port is created
@@ -60,14 +60,14 @@
 // Udev rules (in /etc/udev/rules.d) can define persistent device
 // names linked to this serial number, as well as permissions, owner
 // and group settings.
-#define STR_SERIAL_NUMBER   L"12345"
+#define STR_SERIAL_NUMBER L"12345"
 
 // Mac OS-X and Linux automatically load the correct drivers.  On
 // Windows, even though the driver is supplied by Microsoft, an
 // INF file is needed to load the driver.  These numbers need to
 // match the INF file.
-#define VENDOR_ID       0x03EB
-#define PRODUCT_ID      0x0001
+#define VENDOR_ID  0x03EB
+#define PRODUCT_ID 0x0001
 
 // When you write data, it goes into a USB endpoint buffer, which
 // is transmitted to the PC when it becomes full, or after a timeout
@@ -76,7 +76,7 @@
 // that tells the PC no more data is expected and it should pass
 // any buffered data to the application that may be waiting.  If
 // you want data sent immediately, call usb_serial_flush_output().
-#define TRANSMIT_FLUSH_TIMEOUT  5   /* in milliseconds */
+#define TRANSMIT_FLUSH_TIMEOUT 5   /* in milliseconds */
 
 // If the PC is connected but not "listening", this is the length
 // of time before usb_serial_getchar() returns with an error.  This
@@ -84,7 +84,7 @@
 // bits on a wire where nobody is listening, except you get an error
 // code which you can ignore for serial-like discard of data, or
 // use to know your data wasn't sent.
-#define TRANSMIT_TIMEOUT    25   /* in milliseconds */
+#define TRANSMIT_TIMEOUT 25   /* in milliseconds */
 
 // USB devices are supposed to implment a halt feature, which is
 // rarely (if ever) used.  If you comment this line out, the halt
@@ -112,9 +112,9 @@
 #define CDC_TX_ENDPOINT     4
 #define CDC_ACM_SIZE        16
 #define CDC_ACM_BUFFER      EP_SINGLE_BUFFER
-#define CDC_RX_SIZE     32
+#define CDC_RX_SIZE         32
 #define CDC_RX_BUFFER       EP_DOUBLE_BUFFER
-#define CDC_TX_SIZE     32
+#define CDC_TX_SIZE         32
 #define CDC_TX_BUFFER       EP_DOUBLE_BUFFER
 
 static const uint8_t PROGMEM endpoint_config_table[] = {
@@ -285,7 +285,7 @@ const static struct descriptor_list_struct {
  **************************************************************************/
 
 // zero when we are not configured, non-zero when enumerated
-static volatile uint8_t usb_configuration=0;
+static volatile uint8_t serial_configuration=0;
 
 // the time remaining before we transmit any partially full
 // packet, or send a zero length packet.
@@ -305,29 +305,29 @@ static uint8_t cdc_line_rtsdtr=0;
  **************************************************************************/
 
 // initialize USB serial
-void usb_init(void)
+void serial_init(void)
 {
     HW_CONFIG();
-        USB_FREEZE();               // enable USB
-        PLL_CONFIG();               // config PLL, 16 MHz xtal
-        while (!(PLLCSR & (1<<PLOCK))) ;    // wait for PLL lock
-        USB_CONFIG();               // start USB clock
-        UDCON = 0;              // enable attach resistor
-    usb_configuration = 0;
+    SERIAL_FREEZE();                 // enable USB
+    PLL_CONFIG();                    // config PLL, 16 MHz xtal
+    while (!(PLLCSR & (1<<PLOCK))) ; // wait for PLL lock
+    SERIAL_CONFIG();                 // start USB clock
+    UDCON = 0;                       // enable attach resistor
+    serial_configuration = 0;
     cdc_line_rtsdtr = 0;
-        UDIEN = (1<<EORSTE)|(1<<SOFE);
+    UDIEN = (1<<EORSTE)|(1<<SOFE);
     sei();
 }
 
 // return 0 if the USB is not configured, or the configuration
 // number selected by the HOST
-uint8_t usb_configured(void)
+uint8_t serial_configured(void)
 {
-    return usb_configuration;
+    return serial_configuration;
 }
 
 // get the next character, or -1 if nothing received
-int16_t usb_serial_getchar(void)
+int16_t serial_getchar(void)
 {
     uint8_t c, intr_state;
 
@@ -336,7 +336,7 @@ int16_t usb_serial_getchar(void)
     // even both in the same program!
     intr_state = SREG;
     cli();
-    if (!usb_configuration) {
+    if (!serial_configuration) {
         SREG = intr_state;
         return -1;
     }
@@ -361,13 +361,13 @@ int16_t usb_serial_getchar(void)
 }
 
 // number of bytes available in the receive buffer
-uint8_t usb_serial_available(void)
+uint8_t serial_available(void)
 {
     uint8_t n=0, i, intr_state;
 
     intr_state = SREG;
     cli();
-    if (usb_configuration) {
+    if (serial_configuration) {
         UENUM = CDC_RX_ENDPOINT;
         n = UEBCLX;
         if (!n) {
@@ -380,11 +380,11 @@ uint8_t usb_serial_available(void)
 }
 
 // discard any buffered input
-void usb_serial_flush_input(void)
+void serial_flush_input(void)
 {
     uint8_t intr_state;
 
-    if (usb_configuration) {
+    if (serial_configuration) {
         intr_state = SREG;
         cli();
         UENUM = CDC_RX_ENDPOINT;
@@ -396,12 +396,12 @@ void usb_serial_flush_input(void)
 }
 
 // transmit a character.  0 returned on success, -1 on error
-int8_t usb_serial_putchar(uint8_t c)
+int8_t serial_putchar(uint8_t c)
 {
     uint8_t timeout, intr_state;
 
     // if we're not online (enumerated and configured), error
-    if (!usb_configuration) return -1;
+    if (!serial_configuration) return -1;
     // interrupts are disabled so these functions can be
     // used from the main program or interrupt context,
     // even both in the same program!
@@ -429,7 +429,7 @@ int8_t usb_serial_putchar(uint8_t c)
             return -1;
         }
         // has the USB gone offline?
-        if (!usb_configuration) return -1;
+        if (!serial_configuration) return -1;
         // get ready to try checking again
         intr_state = SREG;
         cli();
@@ -447,11 +447,11 @@ int8_t usb_serial_putchar(uint8_t c)
 
 // transmit a character, but do not wait if the buffer is full,
 //   0 returned on success, -1 on buffer full or error 
-int8_t usb_serial_putchar_nowait(uint8_t c)
+int8_t serial_putchar_nowait(uint8_t c)
 {
     uint8_t intr_state;
 
-    if (!usb_configuration) return -1;
+    if (!serial_configuration) return -1;
     intr_state = SREG;
     cli();
     UENUM = CDC_TX_ENDPOINT;
@@ -481,12 +481,12 @@ int8_t usb_serial_putchar_nowait(uint8_t c)
 // controller in the PC will not allocate bandwitdh without a pending read request.
 // (thanks to Victor Suarez for testing and feedback and initial code)
 
-int8_t usb_serial_write(const uint8_t *buffer, uint16_t size)
+int8_t serial_write(const uint8_t *buffer, uint16_t size)
 {
     uint8_t timeout, intr_state, write_size;
 
     // if we're not online (enumerated and configured), error
-    if (!usb_configuration) return -1;
+    if (!serial_configuration) return -1;
     // interrupts are disabled so these functions can be
     // used from the main program or interrupt context,
     // even both in the same program!
@@ -516,7 +516,7 @@ int8_t usb_serial_write(const uint8_t *buffer, uint16_t size)
                 return -1;
             }
             // has the USB gone offline?
-            if (!usb_configuration) return -1;
+            if (!serial_configuration) return -1;
             // get ready to try checking again
             intr_state = SREG;
             cli();
@@ -616,7 +616,7 @@ int8_t usb_serial_write(const uint8_t *buffer, uint16_t size)
 // This doesn't actually transmit the data - that is impossible!
 // USB devices only transmit when the host allows, so the best
 // we can do is release the FIFO buffer for when the host wants it
-void usb_serial_flush_output(void)
+void serial_flush_output(void)
 {
     uint8_t intr_state;
 
@@ -635,23 +635,19 @@ void usb_serial_flush_output(void)
 // at full USB speed), but they are set by the host so we can
 // set them properly if we're converting the USB to a real serial
 // communication
-// uint32_t usb_serial_get_baud(void)
-// {
-//  return *(uint32_t *)cdc_line_coding;
-// }
-uint8_t usb_serial_get_stopbits(void)
+uint8_t serial_get_stopbits(void)
 {
     return cdc_line_coding[4];
 }
-uint8_t usb_serial_get_paritytype(void)
+uint8_t serial_get_paritytype(void)
 {
     return cdc_line_coding[5];
 }
-uint8_t usb_serial_get_numbits(void)
+uint8_t serial_get_numbits(void)
 {
     return cdc_line_coding[6];
 }
-uint8_t usb_serial_get_control(void)
+uint8_t serial_get_control(void)
 {
     return cdc_line_rtsdtr;
 }
@@ -661,13 +657,13 @@ uint8_t usb_serial_get_control(void)
 // it remains buffered (either here or on the host) and can not be
 // lost because you weren't listening at the right time, like it
 // would in real serial communication.
-int8_t usb_serial_set_control(uint8_t signals)
+int8_t serial_set_control(uint8_t signals)
 {
     uint8_t intr_state;
 
     intr_state = SREG;
     cli();
-    if (!usb_configuration) {
+    if (!serial_configuration) {
         // we're not enumerated/configured
         SREG = intr_state;
         return -1;
@@ -719,11 +715,11 @@ ISR(USB_GEN_vect)
         UECFG0X = EP_TYPE_CONTROL;
         UECFG1X = EP_SIZE(ENDPOINT0_SIZE) | EP_SINGLE_BUFFER;
         UEIENX = (1<<RXSTPE);
-        usb_configuration = 0;
+        serial_configuration = 0;
         cdc_line_rtsdtr = 0;
         }
     if (intbits & (1<<SOFI)) {
-        if (usb_configuration) {
+        if (serial_configuration) {
             t = transmit_flush_timer;
             if (t) {
                 transmit_flush_timer = --t;
@@ -738,19 +734,19 @@ ISR(USB_GEN_vect)
 
 
 // Misc functions to wait for ready and send/receive packets
-static inline void usb_wait_in_ready(void)
+static inline void serial_wait_in_ready(void)
 {
     while (!(UEINTX & (1<<TXINI))) ;
 }
-static inline void usb_send_in(void)
+static inline void serial_send_in(void)
 {
     UEINTX = ~(1<<TXINI);
 }
-static inline void usb_wait_receive_out(void)
+static inline void serial_wait_receive_out(void)
 {
     while (!(UEINTX & (1<<RXOUTI))) ;
 }
-static inline void usb_ack_out(void)
+static inline void serial_ack_out(void)
 {
     UEINTX = ~(1<<RXOUTI);
 }
@@ -827,21 +823,21 @@ ISR(USB_COM_vect)
                     UEDATX = pgm_read_byte(desc_addr++);
                 }
                 len -= n;
-                usb_send_in();
+                serial_send_in();
             } while (len || n == ENDPOINT0_SIZE);
             return;
                 }
         if (bRequest == SET_ADDRESS) {
-            usb_send_in();
-            usb_wait_in_ready();
+            serial_send_in();
+            serial_wait_in_ready();
             UDADDR = wValue | (1<<ADDEN);
             return;
         }
         if (bRequest == SET_CONFIGURATION && bmRequestType == 0) {
-            usb_configuration = wValue;
+            serial_configuration = wValue;
             cdc_line_rtsdtr = 0;
             transmit_flush_timer = 0;
-            usb_send_in();
+            serial_send_in();
             cfg = endpoint_config_table;
             for (i=1; i<5; i++) {
                 UENUM = i;
@@ -857,38 +853,38 @@ ISR(USB_COM_vect)
             return;
         }
         if (bRequest == GET_CONFIGURATION && bmRequestType == 0x80) {
-            usb_wait_in_ready();
-            UEDATX = usb_configuration;
-            usb_send_in();
+            serial_wait_in_ready();
+            UEDATX = serial_configuration;
+            serial_send_in();
             return;
         }
         if (bRequest == CDC_GET_LINE_CODING && bmRequestType == 0xA1) {
-            usb_wait_in_ready();
+            serial_wait_in_ready();
             p = cdc_line_coding;
             for (i=0; i<7; i++) {
                 UEDATX = *p++;
             }
-            usb_send_in();
+            serial_send_in();
             return;
         }
         if (bRequest == CDC_SET_LINE_CODING && bmRequestType == 0x21) {
-            usb_wait_receive_out();
+            serial_wait_receive_out();
             p = cdc_line_coding;
             for (i=0; i<7; i++) {
                 *p++ = UEDATX;
             }
-            usb_ack_out();
-            usb_send_in();
+            serial_ack_out();
+            serial_send_in();
             return;
         }
         if (bRequest == CDC_SET_CONTROL_LINE_STATE && bmRequestType == 0x21) {
             cdc_line_rtsdtr = wValue;
-            usb_wait_in_ready();
-            usb_send_in();
+            serial_wait_in_ready();
+            serial_send_in();
             return;
         }
         if (bRequest == GET_STATUS) {
-            usb_wait_in_ready();
+            serial_wait_in_ready();
             i = 0;
             #ifdef SUPPORT_ENDPOINT_HALT
             if (bmRequestType == 0x82) {
@@ -899,7 +895,7 @@ ISR(USB_COM_vect)
             #endif
             UEDATX = i;
             UEDATX = 0;
-            usb_send_in();
+            serial_send_in();
             return;
         }
         #ifdef SUPPORT_ENDPOINT_HALT
@@ -907,7 +903,7 @@ ISR(USB_COM_vect)
           && bmRequestType == 0x02 && wValue == 0) {
             i = wIndex & 0x7F;
             if (i >= 1 && i <= MAX_ENDPOINT) {
-                usb_send_in();
+                serial_send_in();
                 UENUM = i;
                 if (bRequest == SET_FEATURE) {
                     UECONX = (1<<STALLRQ)|(1<<EPEN);
