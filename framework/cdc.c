@@ -30,8 +30,8 @@
 // Version 1.6: fix zero length packet bug
 // Version 1.7: fix usb_serial_set_control
 
-#define SERIAL_PRIVATE_INCLUDE
-#include "serial.h"
+#define CDC_PRIVATE_INCLUDE
+#include "cdc.h"
 
 
 /**************************************************************************
@@ -60,7 +60,7 @@
 // Udev rules (in /etc/udev/rules.d) can define persistent device
 // names linked to this serial number, as well as permissions, owner
 // and group settings.
-#define STR_SERIAL_NUMBER L"12345"
+#define STR_CDC_NUMBER L"12345"
 
 // Mac OS-X and Linux automatically load the correct drivers.  On
 // Windows, even though the driver is supplied by Microsoft, an
@@ -75,11 +75,11 @@
 // increments, this timeout is used to send a "zero length packet"
 // that tells the PC no more data is expected and it should pass
 // any buffered data to the application that may be waiting.  If
-// you want data sent immediately, call usb_serial_flush_output().
+// you want data sent immediately, call cdc_flush_output().
 #define TRANSMIT_FLUSH_TIMEOUT 5   /* in milliseconds */
 
 // If the PC is connected but not "listening", this is the length
-// of time before usb_serial_getchar() returns with an error.  This
+// of time before cdc_getchar() returns with an error.  This
 // is roughly equivilant to a real UART simply transmitting the
 // bits on a wire where nobody is listening, except you get an error
 // code which you can ignore for serial-like discard of data, or
@@ -255,9 +255,9 @@ const static struct usb_string_descriptor_struct PROGMEM string2 = {
     STR_PRODUCT
 };
 const static struct usb_string_descriptor_struct PROGMEM string3 = {
-    sizeof(STR_SERIAL_NUMBER),
+    sizeof(STR_CDC_NUMBER),
     3,
-    STR_SERIAL_NUMBER
+    STR_CDC_NUMBER
 };
 
 // This table defines which descriptor data is sent for each specific
@@ -273,7 +273,7 @@ const static struct descriptor_list_struct {
     {0x0300, 0x0000, (const uint8_t *)&string0, 4},
     {0x0301, 0x0409, (const uint8_t *)&string1, sizeof(STR_MANUFACTURER)},
     {0x0302, 0x0409, (const uint8_t *)&string2, sizeof(STR_PRODUCT)},
-    {0x0303, 0x0409, (const uint8_t *)&string3, sizeof(STR_SERIAL_NUMBER)}
+    {0x0303, 0x0409, (const uint8_t *)&string3, sizeof(STR_CDC_NUMBER)}
 };
 #define NUM_DESC_LIST (sizeof(descriptor_list)/sizeof(struct descriptor_list_struct))
 
@@ -285,7 +285,7 @@ const static struct descriptor_list_struct {
  **************************************************************************/
 
 // zero when we are not configured, non-zero when enumerated
-static volatile uint8_t serial_configuration=0;
+static volatile uint8_t cdc_configuration=0;
 
 // the time remaining before we transmit any partially full
 // packet, or send a zero length packet.
@@ -305,15 +305,15 @@ static uint8_t cdc_line_rtsdtr=0;
  **************************************************************************/
 
 // initialize USB serial
-void serial_init(void)
+void cdc_init(void)
 {
     HW_CONFIG();
-    SERIAL_FREEZE();                 // enable USB
+    CDC_FREEZE();                    // enable USB
     PLL_CONFIG();                    // config PLL, 16 MHz xtal
     while (!(PLLCSR & (1<<PLOCK))) ; // wait for PLL lock
-    SERIAL_CONFIG();                 // start USB clock
+    CDC_CONFIG();                    // start USB clock
     UDCON = 0;                       // enable attach resistor
-    serial_configuration = 0;
+    cdc_configuration = 0;
     cdc_line_rtsdtr = 0;
     UDIEN = (1<<EORSTE)|(1<<SOFE);
     sei();
@@ -321,13 +321,13 @@ void serial_init(void)
 
 // return 0 if the USB is not configured, or the configuration
 // number selected by the HOST
-uint8_t serial_configured(void)
+uint8_t cdc_configured(void)
 {
-    return serial_configuration;
+    return cdc_configuration;
 }
 
 // get the next character, or -1 if nothing received
-int16_t serial_getchar(void)
+int16_t cdc_getchar(void)
 {
     uint8_t c, intr_state;
 
@@ -336,7 +336,7 @@ int16_t serial_getchar(void)
     // even both in the same program!
     intr_state = SREG;
     cli();
-    if (!serial_configuration) {
+    if (!cdc_configuration) {
         SREG = intr_state;
         return -1;
     }
@@ -361,13 +361,13 @@ int16_t serial_getchar(void)
 }
 
 // number of bytes available in the receive buffer
-uint8_t serial_available(void)
+uint8_t cdc_available(void)
 {
     uint8_t n=0, i, intr_state;
 
     intr_state = SREG;
     cli();
-    if (serial_configuration) {
+    if (cdc_configuration) {
         UENUM = CDC_RX_ENDPOINT;
         n = UEBCLX;
         if (!n) {
@@ -380,11 +380,11 @@ uint8_t serial_available(void)
 }
 
 // discard any buffered input
-void serial_flush_input(void)
+void cdc_flush_input(void)
 {
     uint8_t intr_state;
 
-    if (serial_configuration) {
+    if (cdc_configuration) {
         intr_state = SREG;
         cli();
         UENUM = CDC_RX_ENDPOINT;
@@ -396,12 +396,12 @@ void serial_flush_input(void)
 }
 
 // transmit a character.  0 returned on success, -1 on error
-int8_t serial_putchar(uint8_t c)
+int8_t cdc_putchar(uint8_t c)
 {
     uint8_t timeout, intr_state;
 
     // if we're not online (enumerated and configured), error
-    if (!serial_configuration) return -1;
+    if (!cdc_configuration) return -1;
     // interrupts are disabled so these functions can be
     // used from the main program or interrupt context,
     // even both in the same program!
@@ -429,7 +429,7 @@ int8_t serial_putchar(uint8_t c)
             return -1;
         }
         // has the USB gone offline?
-        if (!serial_configuration) return -1;
+        if (!cdc_configuration) return -1;
         // get ready to try checking again
         intr_state = SREG;
         cli();
@@ -447,11 +447,11 @@ int8_t serial_putchar(uint8_t c)
 
 // transmit a character, but do not wait if the buffer is full,
 //   0 returned on success, -1 on buffer full or error 
-int8_t serial_putchar_nowait(uint8_t c)
+int8_t cdc_putchar_nowait(uint8_t c)
 {
     uint8_t intr_state;
 
-    if (!serial_configuration) return -1;
+    if (!cdc_configuration) return -1;
     intr_state = SREG;
     cli();
     UENUM = CDC_TX_ENDPOINT;
@@ -481,12 +481,12 @@ int8_t serial_putchar_nowait(uint8_t c)
 // controller in the PC will not allocate bandwitdh without a pending read request.
 // (thanks to Victor Suarez for testing and feedback and initial code)
 
-int8_t serial_write(const uint8_t *buffer, uint16_t size)
+int8_t cdc_write(const uint8_t *buffer, uint16_t size)
 {
     uint8_t timeout, intr_state, write_size;
 
     // if we're not online (enumerated and configured), error
-    if (!serial_configuration) return -1;
+    if (!cdc_configuration) return -1;
     // interrupts are disabled so these functions can be
     // used from the main program or interrupt context,
     // even both in the same program!
@@ -516,7 +516,7 @@ int8_t serial_write(const uint8_t *buffer, uint16_t size)
                 return -1;
             }
             // has the USB gone offline?
-            if (!serial_configuration) return -1;
+            if (!cdc_configuration) return -1;
             // get ready to try checking again
             intr_state = SREG;
             cli();
@@ -616,7 +616,7 @@ int8_t serial_write(const uint8_t *buffer, uint16_t size)
 // This doesn't actually transmit the data - that is impossible!
 // USB devices only transmit when the host allows, so the best
 // we can do is release the FIFO buffer for when the host wants it
-void serial_flush_output(void)
+void cdc_flush_output(void)
 {
     uint8_t intr_state;
 
@@ -635,19 +635,19 @@ void serial_flush_output(void)
 // at full USB speed), but they are set by the host so we can
 // set them properly if we're converting the USB to a real serial
 // communication
-uint8_t serial_get_stopbits(void)
+uint8_t cdc_get_stopbits(void)
 {
     return cdc_line_coding[4];
 }
-uint8_t serial_get_paritytype(void)
+uint8_t cdc_get_paritytype(void)
 {
     return cdc_line_coding[5];
 }
-uint8_t serial_get_numbits(void)
+uint8_t cdc_get_numbits(void)
 {
     return cdc_line_coding[6];
 }
-uint8_t serial_get_control(void)
+uint8_t cdc_get_control(void)
 {
     return cdc_line_rtsdtr;
 }
@@ -657,13 +657,13 @@ uint8_t serial_get_control(void)
 // it remains buffered (either here or on the host) and can not be
 // lost because you weren't listening at the right time, like it
 // would in real serial communication.
-int8_t serial_set_control(uint8_t signals)
+int8_t cdc_set_control(uint8_t signals)
 {
     uint8_t intr_state;
 
     intr_state = SREG;
     cli();
-    if (!serial_configuration) {
+    if (!cdc_configuration) {
         // we're not enumerated/configured
         SREG = intr_state;
         return -1;
@@ -715,11 +715,11 @@ ISR(USB_GEN_vect)
         UECFG0X = EP_TYPE_CONTROL;
         UECFG1X = EP_SIZE(ENDPOINT0_SIZE) | EP_SINGLE_BUFFER;
         UEIENX = (1<<RXSTPE);
-        serial_configuration = 0;
+        cdc_configuration = 0;
         cdc_line_rtsdtr = 0;
         }
     if (intbits & (1<<SOFI)) {
-        if (serial_configuration) {
+        if (cdc_configuration) {
             t = transmit_flush_timer;
             if (t) {
                 transmit_flush_timer = --t;
@@ -734,19 +734,19 @@ ISR(USB_GEN_vect)
 
 
 // Misc functions to wait for ready and send/receive packets
-static inline void serial_wait_in_ready(void)
+static inline void cdc_wait_in_ready(void)
 {
     while (!(UEINTX & (1<<TXINI))) ;
 }
-static inline void serial_send_in(void)
+static inline void cdc_send_in(void)
 {
     UEINTX = ~(1<<TXINI);
 }
-static inline void serial_wait_receive_out(void)
+static inline void cdc_wait_receive_out(void)
 {
     while (!(UEINTX & (1<<RXOUTI))) ;
 }
-static inline void serial_ack_out(void)
+static inline void cdc_ack_out(void)
 {
     UEINTX = ~(1<<RXOUTI);
 }
@@ -823,21 +823,21 @@ ISR(USB_COM_vect)
                     UEDATX = pgm_read_byte(desc_addr++);
                 }
                 len -= n;
-                serial_send_in();
+                cdc_send_in();
             } while (len || n == ENDPOINT0_SIZE);
             return;
                 }
         if (bRequest == SET_ADDRESS) {
-            serial_send_in();
-            serial_wait_in_ready();
+            cdc_send_in();
+            cdc_wait_in_ready();
             UDADDR = wValue | (1<<ADDEN);
             return;
         }
         if (bRequest == SET_CONFIGURATION && bmRequestType == 0) {
-            serial_configuration = wValue;
+            cdc_configuration = wValue;
             cdc_line_rtsdtr = 0;
             transmit_flush_timer = 0;
-            serial_send_in();
+            cdc_send_in();
             cfg = endpoint_config_table;
             for (i=1; i<5; i++) {
                 UENUM = i;
@@ -853,38 +853,38 @@ ISR(USB_COM_vect)
             return;
         }
         if (bRequest == GET_CONFIGURATION && bmRequestType == 0x80) {
-            serial_wait_in_ready();
-            UEDATX = serial_configuration;
-            serial_send_in();
+            cdc_wait_in_ready();
+            UEDATX = cdc_configuration;
+            cdc_send_in();
             return;
         }
         if (bRequest == CDC_GET_LINE_CODING && bmRequestType == 0xA1) {
-            serial_wait_in_ready();
+            cdc_wait_in_ready();
             p = cdc_line_coding;
             for (i=0; i<7; i++) {
                 UEDATX = *p++;
             }
-            serial_send_in();
+            cdc_send_in();
             return;
         }
         if (bRequest == CDC_SET_LINE_CODING && bmRequestType == 0x21) {
-            serial_wait_receive_out();
+            cdc_wait_receive_out();
             p = cdc_line_coding;
             for (i=0; i<7; i++) {
                 *p++ = UEDATX;
             }
-            serial_ack_out();
-            serial_send_in();
+            cdc_ack_out();
+            cdc_send_in();
             return;
         }
         if (bRequest == CDC_SET_CONTROL_LINE_STATE && bmRequestType == 0x21) {
             cdc_line_rtsdtr = wValue;
-            serial_wait_in_ready();
-            serial_send_in();
+            cdc_wait_in_ready();
+            cdc_send_in();
             return;
         }
         if (bRequest == GET_STATUS) {
-            serial_wait_in_ready();
+            cdc_wait_in_ready();
             i = 0;
             #ifdef SUPPORT_ENDPOINT_HALT
             if (bmRequestType == 0x82) {
@@ -895,7 +895,7 @@ ISR(USB_COM_vect)
             #endif
             UEDATX = i;
             UEDATX = 0;
-            serial_send_in();
+            cdc_send_in();
             return;
         }
         #ifdef SUPPORT_ENDPOINT_HALT
@@ -903,7 +903,7 @@ ISR(USB_COM_vect)
           && bmRequestType == 0x02 && wValue == 0) {
             i = wIndex & 0x7F;
             if (i >= 1 && i <= MAX_ENDPOINT) {
-                serial_send_in();
+                cdc_send_in();
                 UENUM = i;
                 if (bRequest == SET_FEATURE) {
                     UECONX = (1<<STALLRQ)|(1<<EPEN);

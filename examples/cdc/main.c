@@ -25,7 +25,7 @@
 #include <avr/pgmspace.h>
 #include <stdint.h>
 #include <util/delay.h>
-#include "serial.h"
+#include "cdc.h"
 
 #define LED_CONFIG  (DDRD |= (1<<6))
 #define LED_ON      (PORTD |= (1<<6))
@@ -47,19 +47,19 @@ int main(void) {
     // to set configuration.  If the Teensy is powered
     // without a PC connected to the USB port, this 
     // will wait forever.
-    serial_init();
-    while (!serial_configured()) /* wait */ ;
+    cdc_init();
+    while (!cdc_configured()) /* wait */ ;
     _delay_ms(1000);
 
     while (1) {
         // wait for the user to run their terminal emulator program
         // which sets DTR to indicate it is ready to receive.
-        while (!(serial_get_control() & SERIAL_DTR)) /* wait */ ;
+        while (!(cdc_get_control() & CDC_DTR)) /* wait */ ;
 
         // discard anything that was received prior.  Sometimes the
         // operating system or other software will send a modem
         // "AT command", which can still be buffered.
-        serial_flush_input();
+        cdc_flush_input();
 
         // print a nice welcome message
         send_str(PSTR("\r\nAtmel atmega32u2 USB serial example, "
@@ -89,7 +89,7 @@ void send_str(const char *s)
     while (1) {
         c = pgm_read_byte(s++);
         if (!c) break;
-        serial_putchar(c);
+        cdc_putchar(c);
     }
 }
 
@@ -106,17 +106,17 @@ uint8_t recv_str(char *buf, uint8_t size)
     uint8_t count=0;
 
     while (count < size) {
-        r = serial_getchar();
+        r = cdc_getchar();
         if (r != -1) {
             if (r == '\r' || r == '\n') return count;
             if (r >= ' ' && r <= '~') {
                 *buf++ = r;
-                serial_putchar(r);
+                cdc_putchar(r);
                 count++;
             }
         } else {
-            if (!serial_configured() ||
-              !(serial_get_control() & SERIAL_DTR)) {
+            if (!cdc_configured() ||
+              !(cdc_get_control() & CDC_DTR)) {
                 // user no longer connected
                 return 255;
             }
@@ -143,7 +143,7 @@ void parse_and_execute_command(const char *buf, uint8_t num)
         port = buf[0] - 'a';
     } else {
         send_str(PSTR("Unknown port \""));
-        serial_putchar(buf[0]);
+        cdc_putchar(buf[0]);
         send_str(PSTR("\", must be A - F\r\n"));
         return;
     }
@@ -152,7 +152,7 @@ void parse_and_execute_command(const char *buf, uint8_t num)
         pin = buf[1] - '0';
     } else {
         send_str(PSTR("Unknown pin \""));
-        serial_putchar(buf[0]);
+        cdc_putchar(buf[0]);
         send_str(PSTR("\", must be 0 to 7\r\n"));
         return;
     }
@@ -162,7 +162,7 @@ void parse_and_execute_command(const char *buf, uint8_t num)
         *(uint8_t *)(0x21 + port * 3) &= ~(1 << pin);
         // read the pin
         val = *(uint8_t *)(0x20 + port * 3) & (1 << pin);
-        serial_putchar(val ? '1' : '0');
+        cdc_putchar(val ? '1' : '0');
         send_str(PSTR("\r\n"));
         return;
     }
@@ -182,13 +182,13 @@ void parse_and_execute_command(const char *buf, uint8_t num)
             return;
         } else {
             send_str(PSTR("Unknown value \""));
-            serial_putchar(buf[3]);
+            cdc_putchar(buf[3]);
             send_str(PSTR("\", must be 0 or 1\r\n"));
             return;
         }
     }
     // otherwise, error message
     send_str(PSTR("Unknown command \""));
-    serial_putchar(buf[0]);
+    cdc_putchar(buf[0]);
     send_str(PSTR("\", must be ? or =\r\n"));
 }
