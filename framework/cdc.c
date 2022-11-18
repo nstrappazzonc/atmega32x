@@ -110,10 +110,15 @@
 #define CDC_TX_ENDPOINT  4
 #define CDC_ACM_SIZE     16
 #define CDC_ACM_BUFFER   EP_SINGLE_BUFFER
-#define CDC_RX_SIZE      32
 #define CDC_RX_BUFFER    EP_DOUBLE_BUFFER
-#define CDC_TX_SIZE      32
 #define CDC_TX_BUFFER    EP_DOUBLE_BUFFER
+#if defined(__AVR_ATmega32U2__)
+#define CDC_RX_SIZE      32
+#define CDC_TX_SIZE      32
+#elif defined(__AVR_ATmega32U4__)
+#define CDC_RX_SIZE      64
+#define CDC_TX_SIZE      64
+#endif
 
 static const uint8_t PROGMEM endpoint_config_table[] = {
     0,

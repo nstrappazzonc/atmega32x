@@ -73,10 +73,17 @@ int8_t cdc_set_control(uint8_t signals); // Set DSR, DCD, RI, etc
 
 #define LSB(n) (n & 255)
 #define MSB(n) ((n >> 8) & 255)
+#if defined(__AVR_ATmega32U2__)
 #define HW_CONFIG()
 #define PLL_CONFIG() (PLLCSR = ((1<<PLLE)|(1<<PLLP0)))
 #define CDC_CONFIG() (USBCON = (1<<USBE))
 #define CDC_FREEZE() (USBCON = ((1<<USBE)|(1<<FRZCLK)))
+#elif defined(__AVR_ATmega32U4__)
+#define HW_CONFIG() (UHWCON = 0x01)
+#define PLL_CONFIG() (PLLCSR = 0x12)
+#define CDC_CONFIG() (USBCON = ((1<<USBE)|(1<<OTGPADE)))
+#define CDC_FREEZE() (USBCON = ((1<<USBE)|(1<<FRZCLK)))
+#endif
 
 // Standard control endpoint request types
 #define GET_STATUS                  0
