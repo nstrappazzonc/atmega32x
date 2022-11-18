@@ -700,9 +700,10 @@ ISR(USB_GEN_vect)
 {
     uint8_t intbits, t;
 
-        intbits = UDINT;
-        UDINT = 0;
-        if (intbits & (1<<EORSTI)) {
+    intbits = UDINT;
+    UDINT = 0;
+
+    if (intbits & (1<<EORSTI)) {
         UENUM = 0;
         UECONX = 1;
         UECFG0X = EP_TYPE_CONTROL;
@@ -710,7 +711,8 @@ ISR(USB_GEN_vect)
         UEIENX = (1<<RXSTPE);
         cdc_configuration = 0;
         cdc_line_rtsdtr = 0;
-        }
+    }
+
     if (intbits & (1<<SOFI)) {
         if (cdc_configuration) {
             t = transmit_flush_timer;
@@ -752,9 +754,9 @@ static inline void cdc_ack_out(void)
 //
 ISR(USB_COM_vect)
 {
-        uint8_t intbits;
+    uint8_t intbits;
     const uint8_t *list;
-        const uint8_t *cfg;
+    const uint8_t *cfg;
     uint8_t i, n, len, en;
     uint8_t *p;
     uint8_t bmRequestType;
@@ -923,6 +925,38 @@ void cdc_write_string(const char *s) {
         if (!c) break;
         cdc_putchar(c);
     }
+}
+
+// Receive a string from the USB serial port.  The string is stored
+// in the buffer and this function will not exceed the buffer size.
+// A carriage return or newline completes the string, and is not
+// stored into the buffer.
+// The return value is the number of characters received, or 255 if
+// the virtual serial connection was closed while waiting.
+//
+uint8_t cdc_read_string(char *buf, uint8_t size) {
+    int16_t r;
+    uint8_t count=0;
+
+    while (count < size) {
+        r = cdc_getchar();
+        if (r != -1) {
+            if (r == '\r' || r == '\n') return count;
+            if (r >= ' ' && r <= '~') {
+                *buf++ = r;
+                cdc_putchar(r);
+                count++;
+            }
+        } else {
+            if (!cdc_configured() ||
+              !(cdc_get_control() & CDC_DTR)) {
+                // user no longer connected
+                return 255;
+            }
+            // just a normal timeout, keep waiting
+        }
+    }
+    return count;
 }
 
 // wait for the user to run their terminal emulator program

@@ -36,5 +36,4 @@
 
 extern void pin_setup(uint8_t pin, uint8_t mode, uint8_t state);
 extern void pin_set_state(uint8_t pin, uint8_t state);
-extern uint8_t pin_get_state(uint8_t port, uint8_t pin);
-extern uint8_t pin_get(uint8_t pin);
+extern uint8_t pin_get_state(uint8_t pin);

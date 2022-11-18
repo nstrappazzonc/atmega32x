@@ -142,10 +142,6 @@ void pin_set_state(uint8_t pin, uint8_t state) {
     }
 }
 
-uint8_t pin_get_state(uint8_t port, uint8_t pin) {
-    return port & mask_get_id(pin);
-}
-
-uint8_t pin_get(uint8_t pin) {
-    return *pin_get_id(pin) & mask_get_id(pin);
+uint8_t pin_get_state(uint8_t pin) {
+    return *port_get_id(pin) & mask_get_id(pin);
 }

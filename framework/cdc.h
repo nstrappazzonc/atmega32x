@@ -10,10 +10,11 @@ void cdc_init(void);          // Initialize everything
 uint8_t cdc_configured(void); // Is the USB port configured
 
 // Receiving data
-int16_t cdc_getchar(void);       // Receive a character (-1 if timeout/error)
-uint8_t cdc_available(void);     // Number of bytes in receive buffer
-void cdc_flush_input(void);      // Discard any buffered input
-void cdc_ready_to_receive(void); // Ready to receive data from terminal.
+int16_t cdc_getchar(void);                 // Receive a character (-1 if timeout/error)
+uint8_t cdc_available(void);               // Number of bytes in receive buffer
+uint8_t cdc_read_string(char *data, uint8_t size); // Read string into buffer
+void cdc_flush_input(void);                // Discard any buffered input
+void cdc_ready_to_receive(void);           // Ready to receive data from terminal.
 
 // Transmitting data
 int8_t cdc_putchar(uint8_t c);                          // Transmit a character
