@@ -15,7 +15,7 @@ clean: ## Remove compiled files.
 	rm -f *.o *.hex main
 
 build: ## Compile source code.
-	avr-gcc ${CFLAGS} -c ${LIB}framework/*.c
+	avr-gcc ${CFLAGS} ${LIB}framework/*.c
 	avr-gcc ${CFLAGS} -I ${LIB}framework/ -o main.o main.c
 	avr-gcc -mmcu=${MCU} *.o -o main
 	avr-objcopy -O ihex -R .eeprom main main.hex
@@ -26,10 +26,10 @@ flash-isp: ## Write firmware to microcontroller using ISP.
 flash-dfu: ## Write firmware to microcontroller using DFU.
 	dfu-programmer ${MCU} erase
 	dfu-programmer ${MCU} flash main.hex
-	dfu-programmer ${MCU} launch --no-reset
+	dfu-programmer ${MCU} start
 
 launch: ## Run program using DFU.
-	dfu-programmer ${MCU} launch --no-reset
+	dfu-programmer ${MCU} start
 
 download: ## Backup firmware from microcontroller using ISP.
 	avrdude -V -c usbtiny -p ${MCU} -U flash:r:backup.hex:i
@@ -37,11 +37,11 @@ download: ## Backup firmware from microcontroller using ISP.
 fuse: ## Write fuse to microcontroller using ISP.
 	avrdude -c usbtiny -p ${MCU} -u -F -U lfuse:w:0xff:m -U hfuse:w:0xd9:m -U efuse:w:0xf4:m
 
-get-fuse: ## Write fuse to microcontroller using ISP.
+get-fuse: ## Read fuse from microcontroller using ISP.
 	avrdude -c usbtiny -p ${MCU} -u -U lfuse:r:-:i -U hfuse:r:-:i -U efuse:r:-:i
 
 erase: ## Erase all on microcontroller using ISP.
 	avrdude -c usbtiny -p ${MCU} -e -F
 
-tty: ## Enter into TTY terminal.
-	tio -b 57600 /dev/tty.usbmodem14401
+tty: ## Enter into TTY terminal, for CDC.
+	tio -b 38400 /dev/ttyACM0
