@@ -32,4 +32,6 @@ int main(void) {
             cdc_write_string(PSTR("\r\n"));
         }
     }
+
+    return 0;
 }

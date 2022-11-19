@@ -27,4 +27,6 @@ int main(void) {
 
         wait(50);
     }
+
+    return 0;
 }

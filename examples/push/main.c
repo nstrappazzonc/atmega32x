@@ -12,4 +12,6 @@ int main(void) {
             PORTB &= ~(1<<5); // Escribe LOW, para apagar el LED.
         }
     }
+
+    return 0;
 }

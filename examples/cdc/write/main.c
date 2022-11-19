@@ -11,4 +11,6 @@ int main(void) {
 
         wait(1000);
     }
+
+    return 0;
 }
