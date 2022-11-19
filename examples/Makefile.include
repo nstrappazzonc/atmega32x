@@ -3,7 +3,7 @@
 GREEN := $(shell tput -Txterm setaf 2)
 YELLOW := $(shell tput -Txterm setaf 3)
 RESET := $(shell tput -Txterm sgr0)
-MCU=atmega32u2
+MCU=atmega32u4
 CLK=16000000
 
 CFLAGS=-Os -DF_CPU=${CLK}UL -mmcu=${MCU} -Wall -c
