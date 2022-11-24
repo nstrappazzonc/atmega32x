@@ -2,6 +2,8 @@
 
 All examples inside in this repository are configure to use 16 MHz.
 
+**WARNING** This MCU don't have ADC.
+
 Examples:
 
 - LED: Normal blink, Fade (PWM) and RGB.
