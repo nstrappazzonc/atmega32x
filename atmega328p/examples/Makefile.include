@@ -15,7 +15,7 @@ clean: ## Remove compiled files.
 	rm -f *.o *.hex main
 
 build: ## Compile source code.
-	avr-gcc ${CFLAGS} -c -o main.o main.c
+	avr-gcc ${CFLAGS} -I . -o main.o main.c
 	avr-gcc -mmcu=${MCU} *.o -o main
 	avr-objcopy -O ihex -R .eeprom main main.hex
 
