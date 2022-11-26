@@ -1,4 +1,4 @@
-# ATmega32x
+# ATmega32/8/8P/u2/u4
 
 AVR examples code for MCU ATmega328/P and ATmega32u2 and ATmega32u4. 
 
