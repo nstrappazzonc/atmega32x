@@ -6,7 +6,7 @@ RESET := $(shell tput -Txterm sgr0)
 MCU=atmega328p
 CLK=16000000
 
-CFLAGS=-Os -DF_CPU=${CLK}UL -mmcu=${MCU} -Wall -c
+CFLAGS=-Os -DF_CPU=${CLK}UL -mmcu=${MCU} -Wall -c -std=c99 -I.
 
 help: ## Show this help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "${YELLOW}%-16s${GREEN}%s${RESET}\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -15,7 +15,7 @@ clean: ## Remove compiled files.
 	rm -f *.o *.hex main
 
 build: ## Compile source code.
-	avr-gcc ${CFLAGS} -I . -o main.o main.c
+	avr-gcc ${CFLAGS} -o main.o main.c
 	avr-gcc -mmcu=${MCU} *.o -o main
 	avr-objcopy -O ihex -R .eeprom main main.hex
 
