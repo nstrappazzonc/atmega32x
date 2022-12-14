@@ -6,7 +6,46 @@ RESET := $(shell tput -Txterm sgr0)
 MCU=atmega328p
 CLK=16000000
 
-CFLAGS=-Os -DF_CPU=${CLK}UL -mmcu=${MCU} -Wall -c -std=c99 -I.
+# Optimization level, can be [0, 1, 2, 3, s, g].
+#     0 = Turn off optimization.
+#     1 = Optimize.
+#     2 = Optimize even more.
+#     3 = Optimize yet more.
+#     s = Optimize for size.
+#     g = Optimize debugging experience.
+#     (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
+OPT = 1
+
+#---------------- Compiler Options C ----------------
+#  -g*:          generate debugging information
+#  -O*:          optimization level
+#  -f...:        tuning, see GCC manual and avr-libc documentation
+#  -Wall...:     warning level
+#  -Wa,...:      tell GCC to pass this to the assembler.
+#    -adhlns...: create assembler listing
+MCU=atmega328p
+CLK=16000000
+CFLAGS  = -mmcu=${MCU}
+CFLAGS += -DF_CPU=${CLK}UL
+CFLAGS += -gdwarf-2
+CFLAGS += -g
+CFLAGS += -O$(OPT)
+CFLAGS += -I.
+CFLAGS += -std=gnu99
+CFLAGS += -Wall
+# Allow print floating point:
+CFLAGS += -Wl,-u,vfprintf -lprintf_flt
+#
+CFLAGS += -ffunction-sections
+CFLAGS += -fno-inline-small-functions
+CFLAGS += -fno-strict-aliasing
+CFLAGS += -fpack-struct
+CFLAGS += -fshort-enums
+CFLAGS += -funsigned-bitfields
+CFLAGS += -funsigned-char
+CFLAGS += -Wdisabled-optimization
+CFLAGS += -Wstrict-prototypes
+CFLAGS += -Wunsafe-loop-optimizations
 
 help: ## Show this help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "${YELLOW}%-16s${GREEN}%s${RESET}\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -16,8 +55,7 @@ clean: ## Remove compiled files.
 
 build: ## Compile source code.
 	avr-gcc ${CFLAGS} -o main.o main.c
-	avr-gcc -mmcu=${MCU} *.o -o main
-	avr-objcopy -O ihex -R .eeprom main main.hex
+	avr-objcopy -j .text -j .data -O ihex main.o main.hex
 
 flash: ## Write firmware to microcontroller using ISP.
 	avrdude -F -V -c usbtiny -p ${MCU} -U flash:w:main.hex
