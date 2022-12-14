@@ -8,4 +8,4 @@ Examples:
 - [Push button and turn ON/OFF led.](https://github.com/nstrappazzonc/atmega32x/tree/main/atmega328p/examples/push)
 - [Fade, use PWM.](https://github.com/nstrappazzonc/atmega32x/tree/main/atmega328p/examples/led/fade)
 - [CDC, read and write via terminal.](https://github.com/nstrappazzonc/atmega32x/tree/main/atmega328p/examples/cdc)
-- ADC, read analog values from LDR.
+- [ADC, read analog values from LDR.](https://github.com/nstrappazzonc/atmega32x/tree/main/atmega328p/examples/cdc)

@@ -3,10 +3,45 @@
 GREEN := $(shell tput -Txterm setaf 2)
 YELLOW := $(shell tput -Txterm setaf 3)
 RESET := $(shell tput -Txterm sgr0)
+
+# Optimization level, can be [0, 1, 2, 3, s, g]. 
+#     0 = Turn off optimization.
+#     1 = Optimize.
+#     2 = Optimize even more.
+#     3 = Optimize yet more.
+#     s = Optimize for size.
+#     g = Optimize debugging experience.
+#     (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
+OPT = 2
+
+#---------------- Compiler Options C ----------------
+#  -g*:          generate debugging information
+#  -O*:          optimization level
+#  -f...:        tuning, see GCC manual and avr-libc documentation
+#  -Wall...:     warning level
+#  -Wa,...:      tell GCC to pass this to the assembler.
+#    -adhlns...: create assembler listing
 MCU=atmega328p
 CLK=16000000
-
-CFLAGS=-Os -DF_CPU=${CLK}UL -mmcu=${MCU} -Wall -c -std=c99 -I.
+CFLAGS  = -mmcu=${MCU}
+CFLAGS += -DF_CPU=${CLK}UL
+# CFLAGS += -gdwarf-2
+CFLAGS += -g
+CFLAGS += -O$(OPT)
+CFLAGS += -Wl,-Map,$(P).map -u,vfprintf -lprintf_flt -lm
+# CFLAGS += -I.
+# CFLAGS += -std=gnu99
+# CFLAGS += -Wall
+# CFLAGS += -Wdisabled-optimization
+# CFLAGS += -Wunsafe-loop-optimizations
+# CFLAGS += -funsigned-char
+# CFLAGS += -funsigned-bitfields
+# CFLAGS += -ffunction-sections
+# CFLAGS += -fno-inline-small-functions
+# CFLAGS += -fpack-struct
+# CFLAGS += -fshort-enums
+# CFLAGS += -Wstrict-prototypes
+# CFLAGS += -fno-strict-aliasing
 
 help: ## Show this help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "${YELLOW}%-16s${GREEN}%s${RESET}\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -16,20 +51,19 @@ clean: ## Remove compiled files.
 
 build: ## Compile source code.
 	avr-gcc ${CFLAGS} -o main.o main.c
-	avr-gcc -mmcu=${MCU} *.o -o main
-	avr-objcopy -O ihex -R .eeprom main main.hex
+	avr-objcopy -j .text -j .data -O ihex main.o main.hex
 
 flash: ## Write firmware to microcontroller using ISP.
-	avrdude -F -V -c usbtiny -p ${MCU} -U flash:w:main.hex
+	avrdude -F -V -c usbtiny -p ${MCU} -D -U flash:w:main.hex
 
 download: ## Backup firmware from microcontroller using ISP.
 	avrdude -V -c usbtiny -p ${MCU} -U flash:r:backup.hex:i
 
 erase: ## Erase all on microcontroller using ISP.
-	avrdude -c usbtiny -p ${MCU} -e -F
+	avrdude -c usbtiny -p ${MCU} -e -F -V -v -v -v
 
 fuse: ## Write fuse to microcontroller using ISP.
 	avrdude -c usbtiny -p ${MCU} -u -F -U lfuse:w:0xFF:m -U hfuse:w:0xDA:m -U efuse:w:0x05:m
 
 tty: ## Enter into TTY terminal, for CDC.
-	tio -b 9600 /dev/cu.usbserial-1410
+	tio -b 9600 /dev/tty.wchusbserial110
