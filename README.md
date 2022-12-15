@@ -16,6 +16,8 @@ sudo apt-get install -y gcc-avr binutils-avr avr-libc gdb-avr avrdude libusb-dev
 
 To install this tools, we recommend first installing [Homebrew](https://brew.sh). Then run the following commands to install AVRDUDE and homebrew-avr:
 
+**Warning** Build on MAC OS X is not fully supported, it's better on Linux.
+
 ```bash
 xcode-select --install
 brew install avrdude
