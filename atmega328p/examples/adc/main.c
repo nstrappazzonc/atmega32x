@@ -24,13 +24,32 @@ int main(void)
     stdout = &usart_stdout;
 
     // Configure ADC:
-    
+    // Select reference voltage on AVCC.
+    ADMUX  |= (1<<REFS0);
+    // Select internal reference voltage 1.1v.
+    // ADMUX  |= (1<<REFS0) | (1<<REFS1);
+    // Left-adjust result, return only 8 bits
+    // ADMUX  |= (1 << ADLAR);
+    // Set prescaller to 128.
+    ADCSRA |= (1<<ADPS0);
+    ADCSRA |= (1<<ADPS1);
+    ADCSRA |= (1<<ADPS2);
+    // Enable ADC.
+    ADCSRA |= (1<<ADEN);
 
-    
-    double pi = 3.14159;
+    uint16_t result=0;
 
     while (1) {
-        printf("Value: %f\n\r", pi);
+        // Select ADC channel with safety mask.
+        ADMUX = (ADMUX & 0xF0) | (0 & 0x0F);
+        // Start conversion.
+        ADCSRA |= (1<<ADSC);
+        // Wait until ADC conversion is complete.
+        while( ADCSRA & (1<<ADSC) );
+        result = ADC;
+        // Print the current value.
+	    printf("Value: %u\r\n", result);
+        // Wait 1 second.
         _delay_ms(1000);
     }
 
