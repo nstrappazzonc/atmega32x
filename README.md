@@ -12,8 +12,9 @@ To program AVRs, you will need the free avr-gcc compiler, avr-libc, AVRDUDE, and
 sudo apt-get install -y gcc-avr binutils-avr avr-libc gdb-avr avrdude libusb-dev dfu-programmer
 ```
 
-### Mac OS X
+### MAC OS X
 
+<<<<<<< HEAD
 To install this tools, we recommend first installing [Homebrew](https://brew.sh). Then run the following commands to install AVRDUDE and homebrew-avr:
 
 **Warning** Build on MAC OS X is not fully supported, it's better on Linux.
@@ -25,3 +26,6 @@ brew tap osx-cross/avr
 brew install avr-gcc
 brew install dfu-programmer
 ```
+=======
+**WARNING** Build on MAC OS X is not fully supported, it's better on Linux.
+>>>>>>> 43fd46ff5a8f4840abfbe311f16f29d86199c2f1

@@ -4,7 +4,7 @@
 #define USART_BAUDRATE 9600
 #define UBRR_VALUE (((F_CPU / (USART_BAUDRATE * 16UL))) - 1)
 
-static void USARTInit();
+static void USARTInit(void);
 static void USARTSend(uint8_t);
 static void USARTSendString(char* string);
 static unsigned char USARTRead(void);
@@ -15,13 +15,12 @@ int main(void) {
 
     while(1){
         USARTSend(USARTRead());
-        _delay_ms(1000);
     }
 
     return 0;
 }
 
-static void USARTInit() {
+static void USARTInit(void) {
     UBRR0H  = (uint8_t)(UBRR_VALUE >> 8);
     UBRR0L  = (uint8_t)(UBRR_VALUE);
     UCSR0B |= (1<<RXEN0);   // Turn on receiver.
