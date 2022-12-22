@@ -41,7 +41,7 @@ int main(void)
 
     while (1) {
         // Select ADC channel with safety mask.
-        ADMUX = (ADMUX & 0xF0) | (0 & 0x0F);
+        ADMUX = (ADMUX & 0xF0) | (PC0 & 0x0F);
         // Start conversion.
         ADCSRA |= (1<<ADSC);
         // Wait until ADC conversion is complete.
