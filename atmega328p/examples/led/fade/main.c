@@ -1,6 +1,4 @@
 #include <avr/io.h>
-#include <avr/interrupt.h>
-#include <stdbool.h>
 #include <util/delay.h>
 
 int main (void) {
@@ -23,4 +21,6 @@ int main (void) {
 
 		_delay_ms(10);
 	}
+
+	return 0;
 }
