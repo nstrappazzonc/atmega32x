@@ -19,11 +19,12 @@ int main(void) {
     LCDInit();
 
     while (1) {
+        LCDClear();
         LCDSetCursor(1,1);
         LCDPrint("ABCD");
         _delay_ms(1000);
         LCDClear();
-        LCDSetCursor(2,1);
+        LCDSetCursor(1,2);
         LCDPrint("1234");
         _delay_ms(1000);
     };
