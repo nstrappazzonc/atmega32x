@@ -71,4 +71,4 @@ fuse: ## Write fuse to microcontroller using ISP.
 	avrdude -c usbtiny -p ${MCU} -u -F -U lfuse:w:0xFF:m -U hfuse:w:0xDA:m -U efuse:w:0x05:m
 
 tty: ## Enter into TTY terminal, for CDC.
-	tio -b 9600 /dev/cu.usbserial-1410
+	tio -b 9600 /dev/serial/by-id/usb-1a86_USB_Serial-if00-port0
