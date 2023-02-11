@@ -49,14 +49,12 @@ help: ## Show this help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "${YELLOW}%-16s${GREEN}%s${RESET}\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 clean: ## Remove compiled files.
-	rm -f *.o *.hex main
+	rm -f *.o *.hex *.out main
 
 build: ## Compile source code.
-	avr-gcc ${CFLAGS} -o main.o main.c
+	avr-gcc ${CFLAGS} *.c
+	avr-gcc ${CFLAGS} -o main.o *.c
 	avr-objcopy -j .text -j .data -O ihex main.o main.hex
-
-build-on-docker: ## Compile source using Docker.
-	docker run -i -t -v "$(pwd)/:/workdir/" avr /bin/bash -c "cd $(pwd) && make build"
 
 flash: erase ## Write firmware to microcontroller using ISP.
 	avrdude -F -V -c usbtiny -p ${MCU} -D -U flash:w:main.hex
