@@ -121,8 +121,6 @@ int main(void) {
 	DDRC  &= ~(1 << PC3); // I
 	DDRC  &= ~(1 << PC2); // I
 
-	//sei(); // Set global interrupts.
-
 	while(1) {
 		for (uint8_t i = 1; i <= 10; i++) {
 			for (uint8_t x = 1; x <= 100; x++) {
