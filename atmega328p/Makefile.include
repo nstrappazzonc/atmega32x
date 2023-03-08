@@ -52,7 +52,6 @@ clean: ## Remove compiled files.
 	rm -f *.o *.hex *.out main
 
 build: ## Compile source code.
-	avr-gcc ${CFLAGS} *.c
 	avr-gcc ${CFLAGS} -o main.o *.c
 	avr-objcopy -j .text -j .data -O ihex main.o main.hex
 
