@@ -4,10 +4,14 @@ Hagamos un repaso breve de términos,
 
 - El **[sonido](https://es.wikipedia.org/wiki/Sonido)** es cualquier fenomeno que involucra una propagación de ondas mecanicas a travez de un medio fluido con una frecuencia dentro un rango audible.
 - La **[melodía](https://es.wikipedia.org/wiki/Melodía)** es una sucesión de sonidos que es percibida como una sola entidad. Se desenvuelve en una secuencia lineal, es decir, a lo largo del tiempo, y tiene una identidad y significado propio dentro de un entorno sonoro particular.
+- partitura?
+- musica?
 
 Ahora que sabemos la diferencia de ambos términos, continuemos.
 
-Es posible introducir sonidos o melodias de 8-bit a 8000 Hz usando el canal mono dentro del MCU, se reproduce usando el PWM o un DAC del MCU y estará conectado a la salida con un Zumbador Piezoeléctrico (Piezo Buzzer).
+Es posible introducir sonidos o melodias de 8-bit a 8000 Hz usando el canal mono dentro del MCU, se reproduce usando el PWM o un DAC del MCU y estará conectado a la salida con un Zumbador Piezoeléctrico (Piezo Buzzer). Dependiendo del PWM, hay salidas que trabajan a 8-bit ó 16-bit, mientras más bit se usen, mejor será la calidad del sonido.
+
+El MCU de genera varias formas de ondas; seno, triangular y cuadrada. Cada una hace un efecto de sonido particular. En [este video](https://www.youtube.com/watch?v=qV10Gb-Dvao) te lo explican.
 
 Las melodias de 8-bit, en el mundo binario se expresa matematicamente cómo 2^8 donde su valor esta entre 0 y 255, cada uno de estos 256 valores equivalen a un tono, y en combinación se pueden hacer melodias.
 
@@ -16,7 +20,7 @@ Las melodias de 8-bit, en el mundo binario se expresa matematicamente cómo 2^8 
 2^8 = (16)^2 => 16 × 16 = 256
 ```
 
-El MCU de genera varias formas de ondas; seno, triangular y cuadrada. Cada una hace un efecto de sonido particular. En [este video](https://www.youtube.com/watch?v=qV10Gb-Dvao) te lo explican.
+En el caso de 16-bit, el calculo es parecido y va de 0 a 65535 con un total de 65536.
 
 Considere que no todas las melodias se escucharán bien bajo esta configuración, deben estar hechos para 8-bit y no es suficiente con exportarlos, solo algunos ya adaptados o creados para esta configuración.
 
